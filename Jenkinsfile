@@ -72,7 +72,7 @@ pipeline {
                 }
             }
         }
-        stage("Staging") {
+        stage("Staging deployment") {
             steps {
                 sh 'pid=\$(lsof -i:7070 -t); kill -TERM \$pid || kill -KILL \$pid'
                 withEnv(['JENKINS_NODE_COOKIE=dontkill']) {
