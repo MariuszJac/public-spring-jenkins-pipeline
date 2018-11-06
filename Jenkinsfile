@@ -78,7 +78,7 @@ pipeline {
                   try {
                     sh 'pid=\$(lsof -i:7070 -t); kill -TERM \$pid || kill -KILL \$pid'
                   } catch (Exception e) {
-                    sh 'Service to kill not found at port: 7070 - not killing it!'
+                    sh 'printf Service to kill not found at port: 7070 - not killing it!'
                   }
                 }
                 withEnv(['JENKINS_NODE_COOKIE=dontkill']) {
