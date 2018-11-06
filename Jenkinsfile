@@ -74,7 +74,13 @@ pipeline {
         }
         stage("Staging deployment") {
             steps {
-                sh 'pid=\$(lsof -i:7070 -t); kill -TERM \$pid || kill -KILL \$pid'
+                script {
+                  try {
+                    sh 'pid=\$(lsof -i:7070 -t); kill -TERM \$pid || kill -KILL \$pid'
+                  } catch (Exception e) {
+                    sh 'Service to kill not found at port: 7070 - not killing it!'
+                  }
+                }
                 withEnv(['JENKINS_NODE_COOKIE=dontkill']) {
                     sh 'nohup mvn spring-boot:run -Dspring-boot.run.arguments=--server.port=7070 &'
                 }
