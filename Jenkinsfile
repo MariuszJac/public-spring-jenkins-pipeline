@@ -75,7 +75,6 @@ pipeline {
             }
 
         }
-
         stage("Staging deployment") {
             steps {
                 script {
