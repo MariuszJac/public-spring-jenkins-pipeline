@@ -56,6 +56,7 @@ pipeline {
                 sh './jenkins/scripts/deliver.sh'
             }
         }
+
         stage('Packaging'){
             when {
                 branch "master"
