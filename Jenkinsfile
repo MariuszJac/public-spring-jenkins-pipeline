@@ -60,6 +60,7 @@ pipeline {
             when {
                 branch "master"
             }
+
             steps {
                 script {
                     def server = Artifactory.server('artifactory')
