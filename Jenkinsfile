@@ -62,8 +62,8 @@ pipeline {
             }
             steps {
                 script {
-                    //def server = Artifactory.server('artifactory') //this works if maven configuration for artifactory is provided
-                    def server = Artifactory.newServer url: '127.0.0.1:8081/artifactory', username: 'admin', password: 'pa55word!!'
+                    def server = Artifactory.server('artifactory') //this works if maven configuration for artifactory is provided
+                    //def server = Artifactory.newServer url: '127.0.0.1:8081/artifactory', username: 'admin', password: 'pa55word!!'
                     def rtMaven = Artifactory.newMavenBuild()
                     rtMaven.resolver server: server, releaseRepo: 'libs-release', snapshotRepo: 'libs-snapshot'
                     rtMaven.deployer server: server, releaseRepo: 'libs-release-local', snapshotRepo: 'libs-snapshot-local'
