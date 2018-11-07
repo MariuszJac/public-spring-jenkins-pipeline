@@ -73,6 +73,7 @@ pipeline {
                     server.publishBuildInfo buildInfo
                 }
             }
+
         }
         stage("Staging deployment") {
             steps {
