@@ -47,7 +47,7 @@ pipeline {
             jacoco()
             withSonarQubeEnv('SonarQube') {
               // requires SonarQube Scanner for Maven 3.2+
-              sh 'mvn org.sonarsource.scanner.maven:sonar-maven-plugin:3.2:sonar'
+              sh 'mvn org.sonarsource.scanner.maven:sonar-maven-plugin:3.2:sonar -Dsonar.projectKey=spring-test-app -Dsonar.sources=. -Dsonar.host.url=http://localhost:9000 -Dsonar.login=47af04be6352d6a0f7b8917a189a03b57aafbe69'
             }
           }
         }
