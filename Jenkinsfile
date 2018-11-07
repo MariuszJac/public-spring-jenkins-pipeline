@@ -61,7 +61,6 @@ pipeline {
             when {
                 branch "master"
             }
-
             steps {
                 script {
                     def server = Artifactory.server('artifactory') //this works if maven configuration for artifactory is provided
