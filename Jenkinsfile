@@ -10,6 +10,7 @@ pipeline {
                     steps {
                         //hubotSend message: "*Release Started*. \n Releasing Test Project. :sunny: \n<!here> <!channel> <@buildops> ", tokens: "BUILD_NUMBER,BUILD_ID", status: 'STARTED'
                         sh 'mvn -B -DskipTests clean package'
+                        slackSend (color: '#00FF00', message: "SUCCESSFUL: Compilation of Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
                     }
                 }
                 stage("Checkstyle checking") {
@@ -23,6 +24,7 @@ pipeline {
                           unHealthy: '90',
                           useStableBuildAsReference: true
                         ])
+                        slackSend (color: '#00FF00', message: "SUCCESSFUL: Checkstyle verification of Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
                     }
                 }
             }
@@ -33,6 +35,7 @@ pipeline {
                     steps {
                         sh 'mvn test -Punit'
                         step([$class: 'JUnitResultArchiver', testResults:'**/target/surefire-reports/TEST-*UnitTest.xml'])
+                        slackSend (color: '#00FF00', message: "SUCCESSFUL: Unit Testing of Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
                     }
                 }
                 stage("Integration testing") {
@@ -80,9 +83,11 @@ pipeline {
             steps {
                 script {
                   try {
+                    slackSend (color: '#00FF00', message: "SUCCESSFUL: Re-deployment of Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
                     sh 'pid=\$(lsof -i:7070 -t); kill -TERM \$pid || kill -KILL \$pid'
                   } catch (Exception e) {
                     sh 'printf Service to kill not found at port: 7070 - not killing it!'
+                    slackSend (color: '#FF0000', message: "FAILED: Re-deployment (not running?) of Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
                   }
                 }
                 withEnv(['JENKINS_NODE_COOKIE=dontkill']) {
@@ -101,11 +106,11 @@ pipeline {
     }
     post {
         success {
-            slackSend (color: '#00FF00', message: "SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+            slackSend (color: '#00FF00', message: "SUCCESSFUL: Build of Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
             //hubotSend message: '*Hooray! Went to Prod... :satisfied:* \n Deployed Test Project to prod(10.12.1.191) node.', tokens: '${env.BUILD_NUMBER},${env.BUILD_URL}', status: 'SUCCESS'
         }
         failure {
-            slackSend (color: '#FF0000', message: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+            slackSend (color: '#FF0000', message: "FAILED: Build of Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
         }
     }
 }
