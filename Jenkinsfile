@@ -8,6 +8,7 @@ pipeline {
             parallel {
                 stage("Compilation") {
                     steps {
+                        hubotSend message: 'Releasing Test project.'
                         sh 'mvn -B -DskipTests clean package'
                     }
                 }
