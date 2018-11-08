@@ -8,7 +8,7 @@ pipeline {
             parallel {
                 stage("Compilation") {
                     steps {
-                        hubotSend message: "*Release Started*. \n Releasing Test Project. :sunny: \n<!here> <!channel> <@buildops> ", tokens: "BUILD_NUMBER,BUILD_ID", status: 'STARTED'
+                        //hubotSend message: "*Release Started*. \n Releasing Test Project. :sunny: \n<!here> <!channel> <@buildops> ", tokens: "BUILD_NUMBER,BUILD_ID", status: 'STARTED'
                         sh 'mvn -B -DskipTests clean package'
                     }
                 }
@@ -102,7 +102,7 @@ pipeline {
     post {
         success {
             slackSend (color: '#00FF00', message: "SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
-            hubotSend message: '*Hooray! Went to Prod... :satisfied:* \n Deployed Test Project to prod(10.12.1.191) node.', tokens: '${env.BUILD_NUMBER},${env.BUILD_URL}', status: 'SUCCESS'
+            //hubotSend message: '*Hooray! Went to Prod... :satisfied:* \n Deployed Test Project to prod(10.12.1.191) node.', tokens: '${env.BUILD_NUMBER},${env.BUILD_URL}', status: 'SUCCESS'
         }
         failure {
             slackSend (color: '#FF0000', message: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
