@@ -42,6 +42,7 @@ pipeline {
                     steps {
                         sh 'mvn test -Pintegration'
                         step([$class: 'JUnitResultArchiver', testResults:'**/target/surefire-reports/TEST-'+ '*IntegrationTest.xml'])
+                        slackSend (color: '#00FF00', message: "SUCCESSFUL: Integration Testing of Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
                     }
                 }
             }
@@ -52,12 +53,14 @@ pipeline {
             withSonarQubeEnv('SonarQube') {
               // requires SonarQube Scanner for Maven 3.2+
               sh 'mvn org.sonarsource.scanner.maven:sonar-maven-plugin:3.2:sonar -Dsonar.projectKey=spring-test-app -Dsonar.sources=. -Dsonar.host.url=http://localhost:9000 -Dsonar.login=47af04be6352d6a0f7b8917a189a03b57aafbe69 -Dsonar.test.inclusions=src/test/java/** -Dsonar.exclusions=src/test/java/**'
+              slackSend (color: '#00FF00', message: "SUCCESSFUL: QA (test coverage analysis) Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
             }
           }
         }
         stage('M2Storage') {
             steps {
                 sh './jenkins/scripts/deliver.sh'
+                slackSend (color: '#00FF00', message: "SUCCESSFUL: Jar drop to .M2 of Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
             }
         }
 
@@ -75,6 +78,7 @@ pipeline {
                     rtMaven.tool = 'Maven3'
                     def buildInfo = rtMaven.run pom: 'pom.xml', goals: 'install'
                     server.publishBuildInfo buildInfo
+                    slackSend (color: '#00FF00', message: "SUCCESSFUL: Artifactory packaging of Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
                 }
             }
 
@@ -101,6 +105,7 @@ pipeline {
              }
              steps {
                  input id: 'DeployToProd', message: 'Deploy to production system?', ok: 'Yes'
+                 slackSend (color: '#00FF00', message: "SUCCESSFUL: Production deployment of Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
              }
         }
     }
