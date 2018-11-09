@@ -5,7 +5,7 @@ package is.test.spring;
  */
 public class App {
 
-    private final String message = "Hello World 3!";
+    private final String message = "Hello World 4!";
 
     public App() {}
 
