@@ -5,8 +5,7 @@ pipeline {
     }
     stages {
         stage('Compilation and Analysis') {
-            //parallel
-            {
+            //parallel {
                 stage("Compilation") {
                     steps {
                        slackSend (color: '#00FF00', message: "SUCCESSFUL: Initiated Build of Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
@@ -29,7 +28,7 @@ pipeline {
                         slackSend (color: '#00FF00', message: "SUCCESSFUL: Checkstyle verification of Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
                     }
                 }
-            }
+            //}
         }
         stage('Testing') {
             parallel {
