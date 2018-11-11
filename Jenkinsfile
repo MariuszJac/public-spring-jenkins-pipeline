@@ -4,6 +4,7 @@ pipeline {
 	maven 'Maven3'
     }
     stages {
+        slackSend (color: '#00FF00', message: "SUCCESSFUL: Initiated Build of Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
         stage('Compilation and Analysis') {
             parallel {
                 stage("Compilation") {
