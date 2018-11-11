@@ -4,11 +4,11 @@ pipeline {
 	maven 'Maven3'
     }
     stages {
-        slackSend (color: '#00FF00', message: "SUCCESSFUL: Initiated Build of Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
         stage('Compilation and Analysis') {
             parallel {
                 stage("Compilation") {
                     steps {
+                       slackSend (color: '#00FF00', message: "SUCCESSFUL: Initiated Build of Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
                         //hubotSend message: "*Release Started*. \n Releasing Test Project. :sunny: \n<!here> <!channel> <@buildops> ", tokens: "BUILD_NUMBER,BUILD_ID", status: 'STARTED'
                         sh 'mvn -B -DskipTests clean package'
                         slackSend (color: '#00FF00', message: "SUCCESSFUL: Compilation of Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
