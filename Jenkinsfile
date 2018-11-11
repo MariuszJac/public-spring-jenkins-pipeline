@@ -8,7 +8,10 @@ pipeline {
             parallel {
                 stage("Compilation") {
                     steps {
+                       slackSend (color: '#00FF00', message: "SUCCESSFUL: Initiated Build of Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+                        //hubotSend message: "*Release Started*. \n Releasing Test Project. :sunny: \n<!here> <!channel> <@buildops> ", tokens: "BUILD_NUMBER,BUILD_ID", status: 'STARTED'
                         sh 'mvn -B -DskipTests clean package'
+                        slackSend (color: '#00FF00', message: "SUCCESSFUL: Compilation of Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
                     }
                 }
                 stage("Checkstyle checking") {
@@ -22,6 +25,7 @@ pipeline {
                           unHealthy: '90',
                           useStableBuildAsReference: true
                         ])
+                        slackSend (color: '#00FF00', message: "SUCCESSFUL: Checkstyle verification of Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
                     }
                 }
             }
@@ -32,12 +36,14 @@ pipeline {
                     steps {
                         sh 'mvn test -Punit'
                         step([$class: 'JUnitResultArchiver', testResults:'**/target/surefire-reports/TEST-*UnitTest.xml'])
+                        slackSend (color: '#00FF00', message: "SUCCESSFUL: Unit Testing of Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
                     }
                 }
                 stage("Integration testing") {
                     steps {
                         sh 'mvn test -Pintegration'
                         step([$class: 'JUnitResultArchiver', testResults:'**/target/surefire-reports/TEST-'+ '*IntegrationTest.xml'])
+                        slackSend (color: '#00FF00', message: "SUCCESSFUL: Integration Testing of Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
                     }
                 }
             }
@@ -48,12 +54,14 @@ pipeline {
             withSonarQubeEnv('SonarQube') {
               // requires SonarQube Scanner for Maven 3.2+
               sh 'mvn org.sonarsource.scanner.maven:sonar-maven-plugin:3.2:sonar -Dsonar.projectKey=spring-test-app -Dsonar.sources=. -Dsonar.host.url=http://localhost:9000 -Dsonar.login=47af04be6352d6a0f7b8917a189a03b57aafbe69 -Dsonar.test.inclusions=src/test/java/** -Dsonar.exclusions=src/test/java/**'
+              slackSend (color: '#00FF00', message: "SUCCESSFUL: QA (test coverage analysis) Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
             }
           }
         }
         stage('M2Storage') {
             steps {
                 sh './jenkins/scripts/deliver.sh'
+                slackSend (color: '#00FF00', message: "SUCCESSFUL: Jar drop to .M2 of Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
             }
         }
 
@@ -71,18 +79,20 @@ pipeline {
                     rtMaven.tool = 'Maven3'
                     def buildInfo = rtMaven.run pom: 'pom.xml', goals: 'install'
                     server.publishBuildInfo buildInfo
+                    slackSend (color: '#00FF00', message: "SUCCESSFUL: Artifactory packaging of Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
                 }
             }
 
         }
-
         stage("Staging deployment") {
             steps {
                 script {
                   try {
+                    slackSend (color: '#00FF00', message: "SUCCESSFUL: Re-deployment of Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
                     sh 'pid=\$(lsof -i:7070 -t); kill -TERM \$pid || kill -KILL \$pid'
                   } catch (Exception e) {
                     sh 'printf Service to kill not found at port: 7070 - not killing it!'
+                    slackSend (color: '#FF0000', message: "FAILED: Re-deployment (not running?) of Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
                   }
                 }
                 withEnv(['JENKINS_NODE_COOKIE=dontkill']) {
@@ -96,15 +106,17 @@ pipeline {
              }
              steps {
                  input id: 'DeployToProd', message: 'Deploy to production system?', ok: 'Yes'
+                 slackSend (color: '#00FF00', message: "SUCCESSFUL: Production deployment of Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
              }
         }
     }
     post {
         success {
-            slackSend (color: '#00FF00', message: "SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+            slackSend (color: '#00FF00', message: "SUCCESSFUL: Build of Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+            //hubotSend message: '*Hooray! Went to Prod... :satisfied:* \n Deployed Test Project to prod(10.12.1.191) node.', tokens: '${env.BUILD_NUMBER},${env.BUILD_URL}', status: 'SUCCESS'
         }
         failure {
-            slackSend (color: '#FF0000', message: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+            slackSend (color: '#FF0000', message: "FAILED: Build of Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
         }
     }
 }
