@@ -117,7 +117,6 @@ pipeline {
     }
 }
 
-
         //disabled testing stage as we are running unit and integration tests using profiles defined in pom
         /*
         stage('Testing') {
