@@ -19,7 +19,6 @@ import org.springframework.test.web.servlet.MockMvc;
 @SpringBootTest
 @AutoConfigureMockMvc
 public class WebLayerIntegrationTest {
-
     @Autowired
     private MockMvc mockMvc;
 
